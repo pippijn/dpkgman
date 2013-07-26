@@ -1,8 +1,7 @@
 #!/usr/bin/make -f
-# -*- makefile -*-
 
 ###########################################################
-# :: Architectures and distribution to build for
+# :: Architectures to build for
 ###########################################################
 
 ARCHITECTURES	:= i386 amd64
