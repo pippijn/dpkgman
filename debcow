@@ -5,6 +5,7 @@
 ###########################################################
 
 ARCHITECTURES	:= i386 amd64
+ARCHIVE		:= ppa:pippijn/ppa
 
 
 ###########################################################
@@ -46,7 +47,7 @@ clean:
 	rm -f ../$(PACKAGE)*
 
 upload: ../$(PACKAGE)_source.changes
-	dput ppa:pippijn/ppa $<
+	dput $(ARCHIVE) $<
 
 show:
 	@echo "Package name   : $(PACKAGE_NAME)"
