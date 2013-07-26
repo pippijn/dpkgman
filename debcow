@@ -1,4 +1,5 @@
 #!/usr/bin/make -f
+# -*- makefile -*-
 
 ###########################################################
 # :: Architectures and distribution to build for
