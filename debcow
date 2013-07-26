@@ -71,7 +71,7 @@ $(CACHEDIR)/$(DISTRIBUTION)-%.cow:
 	@test -f $@
 
 # Unsigned for local build.
-../$(PACKAGE).dsc:
+../$(PACKAGE).dsc: clean
 	debuild -S -us -uc
 	@test -f $@
 
