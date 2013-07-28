@@ -17,6 +17,9 @@ $(error No debian/changelog found.\
 	Make sure to run this script from the project root)
 endif
 
+# Force sudo auth caching before running parallel builds.
+SUDO		:= $(shell sudo which sudo)
+
 CACHEDIR	:= /var/cache/pbuilder
 RESULTDIR	:= $(CACHEDIR)/result
 PACKAGE_NAME	:= $(shell head -n1 debian/changelog | awk '{print $$1}')
@@ -56,13 +59,13 @@ show:
 	@echo "Distribution   : $(DISTRIBUTION)"
 
 $(RESULTDIR)/$(PACKAGE)_%.deb: $(CACHEDIR)/$(DISTRIBUTION)-%.cow ../$(PACKAGE).dsc
-	sudo cowbuilder		\
+	$(SUDO) cowbuilder	\
 	  --build		\
 	  --debbuildopts "-j8"	\
 	  --basepath $+
 
 $(CACHEDIR)/$(DISTRIBUTION)-%.cow:
-	sudo cowbuilder			\
+	$(SUDO) cowbuilder		\
 	  --create			\
 	  --architecture $*		\
 	  --distribution $(DISTRIBUTION)\
