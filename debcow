@@ -1,16 +1,19 @@
 #!/usr/bin/make -f
 
-###########################################################
-# :: Architectures to build for
-###########################################################
+###############################################################
+# :: Architectures to build for and package archive for upload
+###############################################################
 
-ARCHITECTURES	:= i386 amd64
 ARCHIVE		:= ppa:pippijn/ppa
 
+ARCHITECTURES	:= i386
+ifeq ($(shell uname -m),x86_64)
+ARCHITECTURES	+= amd64
+endif
 
-###########################################################
+###############################################################
 # :: Variables
-###########################################################
+###############################################################
 
 ifeq ($(wildcard debian/changelog),)
 $(error No debian/changelog found.\
@@ -40,14 +43,15 @@ PACKAGE		:= $(PACKAGE_NAME)_$(PACKAGE_VERSION)
 TARGETS		:= $(foreach A,$(ARCHITECTURES),$(RESULTDIR)/$(PACKAGE)_$A.deb)
 
 
-###########################################################
+###############################################################
 # :: Rules
-###########################################################
+###############################################################
 
 default: $(TARGETS)
 
 clean:
 	rm -f ../$(PACKAGE)*
+	$(SUDO) rm -f $(RESULTDIR)/$(PACKAGE)*
 
 upload: ../$(PACKAGE)_source.changes
 	dput $(ARCHIVE) $<
@@ -63,6 +67,7 @@ $(RESULTDIR)/$(PACKAGE)_%.deb: $(CACHEDIR)/$(DISTRIBUTION)-%.cow ../$(PACKAGE).d
 	  --build		\
 	  --debbuildopts "-j8"	\
 	  --basepath $+
+	@test -f $@
 
 $(CACHEDIR)/$(DISTRIBUTION)-%.cow:
 	$(SUDO) cowbuilder		\
