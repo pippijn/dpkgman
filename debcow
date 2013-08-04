@@ -91,24 +91,22 @@ $(RESULTDIR)-$1/$(DEBPACK)_$1.deb: $(PBUILDDIR)-$1.cow ../$(SRCPACK).dsc
 
 archive: archive-$1
 archive-$1: build-$1
-	$(SUDO) truncate -s0 $(RESULTDIR)-$1/Packages
-	$(SUDO) chgrp adm $(RESULTDIR)-$1/Packages
-	$(SUDO) chmod g+rw $(RESULTDIR)-$1/Packages
 	cd $(RESULTDIR)-$1 && apt-ftparchive packages . > Packages
 
 update: update-$1
 update-$1: $(PBUILDDIR)-$1.cow
-	$(SUDO) cowbuilder	\
-	  --update		\
-	  --basepath $$<
-	$(SUDO) truncate -s0 $(RESULTDIR)-$1/Release
-	$(SUDO) chgrp adm $(RESULTDIR)-$1/Release
-	$(SUDO) chmod g+rw $(RESULTDIR)-$1/Release
+	$(SUDO) mkdir -m0755 -p $(RESULTDIR)-$1
+	$(SUDO) truncate -s0 $(RESULTDIR)-$1/Release $(RESULTDIR)-$1/Packages
+	$(SUDO) chgrp adm $(RESULTDIR)-$1/Release $(RESULTDIR)-$1/Packages
+	$(SUDO) chmod g+rw $(RESULTDIR)-$1/Release $(RESULTDIR)-$1/Packages
 	echo "Archive: $(DISTRIBUTION)"	>> $(RESULTDIR)-$1/Release
 	echo "Component: main"		>> $(RESULTDIR)-$1/Release
 	echo "Origin: pbuilder"		>> $(RESULTDIR)-$1/Release
 	echo "Label: pbuilder"		>> $(RESULTDIR)-$1/Release
 	echo "Architecture: $1"		>> $(RESULTDIR)-$1/Release
+	$(SUDO) cowbuilder	\
+	  --update		\
+	  --basepath $$<
 endef
 
 $(foreach A,$(ARCHITECTURES),$(eval $(call COWBUILDER_template,$A)))
