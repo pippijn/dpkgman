@@ -1,0 +1,18 @@
+#!/bin/sh
+
+# ccache
+sudo mkdir -p /var/cache/pbuilder/ccache
+sudo chmod a+w /var/cache/pbuilder/ccache
+export CCACHE_DIR="/var/cache/pbuilder/ccache"
+export PATH="/usr/lib/ccache:${PATH}"
+EXTRAPACKAGES=ccache
+BINDMOUNTS="${CCACHE_DIR}"
+
+# other packages
+DISTRIBUTION="precise"
+COMPONENTS="main universe multiverse restricted"
+OTHERMIRROR="deb http://ppa.launchpad.net/pippijn/ppa/ubuntu precise main"
+
+# local packages
+BINDMOUNTS="$BINDMOUNTS /var/cache/pbuilder/result"
+#OTHERMIRROR="deb file:/var/cache/pbuilder/result/precise-$ARCH ./"

@@ -1,13 +1,19 @@
-BINDIR = $(HOME)/.bin
+FILES =		\
+	.pbuilderrc
 
 TOOLS =		\
 	debcow
 
 
-install: $(addprefix $(BINDIR)/,$(TOOLS))
+install: $(addprefix $(HOME)/,$(FILES))
+install: $(addprefix $(HOME)/.bin/,$(TOOLS))
 
-$(BINDIR)/%: % $(BINDIR)
+$(HOME)/.bin:
+	mkdir -p $@
+
+$(HOME)/.bin/%: % $(HOME)/.bin
 	cp $< $@
 
-$(BINDIR):
-	mkdir -p $@
+$(HOME)/%: %
+	mkdir -p $(@D)
+	cp $< $@
