@@ -4,7 +4,7 @@
 # :: Architectures to build for and package archive for upload
 ###############################################################
 
-ARCHIVE		:= ppa:pippijn/ppa
+ARCHIVE		:= ppa:$(USER)/ppa
 
 ARCHITECTURES	:= i386
 ifeq ($(shell uname -m),x86_64)
@@ -22,6 +22,7 @@ endif
 
 # Force sudo auth caching before running parallel builds.
 SUDO		:= $(shell sudo which sudo)
+OBUILD		:= $(shell which obuild)
 
 DEBPACKAGES	:= $(shell grep '^Package:' debian/control | awk '{print $$2}')
 SRCPACK_NAME	:= $(shell head -n1 debian/changelog | awk '{print $$1}')
@@ -32,6 +33,9 @@ CACHEDIR	:= /var/cache/pbuilder
 PBUILDDIR	:= $(CACHEDIR)/dists/$(DISTRIBUTION)
 RESULTDIR	:= $(CACHEDIR)/result/$(DISTRIBUTION)
 
+ifeq ($(OBUILD),)
+$(error Could not find obuild in $$PATH)
+endif
 ifeq ($(DEBPACKAGES),)
 $(error Unable to extract deb names from debian/control)
 endif
@@ -55,7 +59,7 @@ SRCPACK		:= $(SRCPACK_NAME)_$(PACKAGE_VERSION)
 # :: Rules
 ###############################################################
 
-.PHONY: default clean distclean upload show build archive update
+.PHONY: default clean distclean upload show build archive init update
 
 default: archive
 	@echo "All packages were built successfully: $^"
@@ -93,8 +97,8 @@ archive: archive-$1
 archive-$1: build-$1
 	cd $(RESULTDIR)-$1 && apt-ftparchive packages . > Packages
 
-update: update-$1
-update-$1: $(PBUILDDIR)-$1.cow
+init: init-$1
+init-$1:
 	$(SUDO) mkdir -m0755 -p $(RESULTDIR)-$1
 	$(SUDO) truncate -s0 $(RESULTDIR)-$1/Release $(RESULTDIR)-$1/Packages
 	$(SUDO) chgrp adm $(RESULTDIR)-$1/Release $(RESULTDIR)-$1/Packages
@@ -104,6 +108,9 @@ update-$1: $(PBUILDDIR)-$1.cow
 	echo "Origin: pbuilder"		>> $(RESULTDIR)-$1/Release
 	echo "Label: pbuilder"		>> $(RESULTDIR)-$1/Release
 	echo "Architecture: $1"		>> $(RESULTDIR)-$1/Release
+
+update: update-$1
+update-$1: $(PBUILDDIR)-$1.cow
 	$(SUDO) cowbuilder	\
 	  --update		\
 	  --basepath $$<
@@ -122,10 +129,10 @@ $(PBUILDDIR)-%.cow:
 
 # Unsigned for local build.
 ../$(SRCPACK).dsc: clean
-	debuild -S -us -uc
+	debuild --prepend-path=$(shell $(OBUILD) --where)/script -S -us -uc
 	@test -f $@
 
 # Signed for upload.
 ../$(SRCPACK)_source.changes: clean
-	debuild -S
+	debuild --prepend-path=$(shell $(OBUILD) --where)/script -S
 	@test -f $@
