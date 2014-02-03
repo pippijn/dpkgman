@@ -64,6 +64,13 @@ SRCPACK		:= $(SRCPACK_NAME)_$(PACKAGE_VERSION)
 default: archive
 	@echo "All packages were built successfully: $^"
 
+help:
+	@echo "Usage: debcow <command>"
+	@echo "  clean:         remove source packages in .."
+	@echo "  distclean:     clean, and remove built binary packages"
+	@echo "  upload:        build source package and upload it to PPA"
+	@echo "  show:          show package information"
+
 clean:
 	rm -f ../$(SRCPACK)*
 
